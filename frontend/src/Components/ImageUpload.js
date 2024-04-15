@@ -1,10 +1,24 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Box, Typography } from '@mui/material';
+import { Button, Box, Typography, ThemeProvider, createTheme } from '@mui/material';
 import { styled } from '@mui/system';
 
 const Input = styled('input')({
   display: 'none',
+});
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#ff9800', // orange
+    },
+    secondary: {
+      main: '#9e9e9e', // grey
+    },
+    background: {
+      default: '#ffffff', // white
+    },
+  },
 });
 
 const ImageUpload = () => {
@@ -28,25 +42,27 @@ const ImageUpload = () => {
   };
 
   return (
-    <Box sx={{ '& > :not(style)': { m: 1 } }}>
-      <label htmlFor="contained-button-file">
-        <Input accept="image/*" id="contained-button-file" type="file" onChange={onFileChange} />
-        <Button variant="contained" component="span">
-          Select Image
+    <ThemeProvider theme={theme}>
+      <Box sx={{ bgcolor: 'background.default', height: '100vh', '& > :not(style)': { m: 1 } }}>
+        <label htmlFor="contained-button-file">
+          <Input accept="image/*" id="contained-button-file" type="file" onChange={onFileChange} />
+          <Button variant="contained" component="span" color="primary">
+            Select Image
+          </Button>
+        </label>
+        <Button variant="contained" color="secondary" onClick={onFileUpload}>
+          Upload
         </Button>
-      </label>
-      <Button variant="contained" color="primary" onClick={onFileUpload}>
-        Upload
-      </Button>
-      {results.map((result, index) => (
-        <Box key={index} sx={{ my: 2 }}>
-          <Typography variant="h6">Result {index + 1}</Typography>
-          <Typography variant="body1">Image Path: {result.image_path}</Typography>
-          <Typography variant="body1">Image Link: {result.image_link}</Typography>
-          <Typography variant="body1">Matches: {result.matches}</Typography>
-        </Box>
-      ))}
-    </Box>
+        {results.map((result, index) => (
+          <Box key={index} sx={{ my: 2 }}>
+            <Typography variant="h6">Result {index + 1}</Typography>
+            <Typography variant="body1">Image Path: {result.image_path}</Typography>
+            <Typography variant="body1">Image Link: {result.image_link}</Typography>
+            <Typography variant="body1">Matches: {result.matches}</Typography>
+          </Box>
+        ))}
+      </Box>
+    </ThemeProvider>
   );
 }
 

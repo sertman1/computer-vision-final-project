@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import pickle
-from ..image_processing import functions
+from . import helpers
 
 def process_gold_standard():
   directory = './data/temporal_forces'
@@ -35,8 +35,8 @@ def process_gold_standard():
       else:
          print(f"No link found for {filename}")
 
-      image = functions.pre_process_image(img_path)
-      keypoints, descriptors = functions.get_keypoints_and_descriptors(image)
+      image = helpers.pre_process_image(img_path)
+      keypoints, descriptors = helpers.get_keypoints_and_descriptors(image)
 
       # Serialize the keypoints and descriptors
       serialized_keypoints = pickle.dumps(keypoints)

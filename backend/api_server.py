@@ -3,18 +3,16 @@ import cv2
 import pickle
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-import numpy as np
-import matplotlib.pyplot as plt
 import sqlite3
-from ..image_processing import functions
+import helpers
 
 app = Flask(__name__)
 CORS(app)
 
 def find_k_nearest_neighbors(img_path, k):
-  img = functions.pre_process_image(img_path)
-  keypoints, descriptors = functions.get_keypoints_and_descriptors(img)
-  keypoints = functions.array_to_keypoints(keypoints)
+  img = helpers.pre_process_image(img_path)
+  keypoints, descriptors = helpers.get_keypoints_and_descriptors(img)
+  keypoints = helpers.array_to_keypoints(keypoints)
 
   # FLANN parameters
   FLANN_INDEX_LSH = 6
@@ -41,7 +39,7 @@ def find_k_nearest_neighbors(img_path, k):
     # Deserialize the keypoints and descriptors
     kps = pickle.loads(serialized_kps)
     des = pickle.loads(serialized_des)
-    kps = functions.array_to_keypoints(kps)
+    kps = helpers.array_to_keypoints(kps)
 
     matches = flann.knnMatch(descriptors, des, k=2)
     good_matches = [m for m,n in matches if m.distance < 0.7*n.distance]
@@ -75,10 +73,6 @@ def upload_file():
             cv2.imwrite(output_filename, img)
             results.append({'image_path': output_filename, 'image_link': image_link, 'matches': matches})
         return jsonify(results)
-
-@app.route('/output/<filename>')
-def get_image(filename):
-    return send_file(os.path.join('./output', filename), mimetype='image/jpeg')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)

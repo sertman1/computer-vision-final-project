@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Button, Box, Typography } from '@mui/material';
+import { styled } from '@mui/system';
+
+const Input = styled('input')({
+  display: 'none',
+});
 
 const ImageUpload = () => {
   const [results, setResults] = useState([]);
@@ -22,17 +28,25 @@ const ImageUpload = () => {
   };
 
   return (
-    <div>
-      <input type='file' onChange={onFileChange} />
-      <button onClick={onFileUpload}>Upload!</button>
+    <Box sx={{ '& > :not(style)': { m: 1 } }}>
+      <label htmlFor="contained-button-file">
+        <Input accept="image/*" id="contained-button-file" type="file" onChange={onFileChange} />
+        <Button variant="contained" component="span">
+          Select Image
+        </Button>
+      </label>
+      <Button variant="contained" color="primary" onClick={onFileUpload}>
+        Upload
+      </Button>
       {results.map((result, index) => (
-        <div key={index}>
-          <p>Image Path: {result.image_path}</p>
-          <p>Image Link: {result.image_link}</p>
-          <p>Matches: {result.matches}</p>
-        </div>
+        <Box key={index} sx={{ my: 2 }}>
+          <Typography variant="h6">Result {index + 1}</Typography>
+          <Typography variant="body1">Image Path: {result.image_path}</Typography>
+          <Typography variant="body1">Image Link: {result.image_link}</Typography>
+          <Typography variant="body1">Matches: {result.matches}</Typography>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }
 

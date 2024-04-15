@@ -1,16 +1,16 @@
 import os
 import sqlite3
 import pickle
-from . import helpers
+import image_processing
 
 def process_gold_standard():
-  directory = './data/temporal_forces'
-  link_file = './data/temporal_forces_links.txt'
+  directory = 'data/temporal_forces'
+  link_file = 'data/links/temporal_forces_links.txt'
   with open(link_file, 'r') as f:
     image_links = f.read().split(',')
 
   # Connect to the SQLite database (it will be created if it doesn't exist)
-  conn = sqlite3.connect('image_features.db')
+  conn = sqlite3.connect('db/image_features.db')
   c = conn.cursor()
 
   # Create a table to store the image features
@@ -35,8 +35,8 @@ def process_gold_standard():
       else:
          print(f"No link found for {filename}")
 
-      image = helpers.pre_process_image(img_path)
-      keypoints, descriptors = helpers.get_keypoints_and_descriptors(image)
+      image = image_processing.pre_process_image(img_path)
+      keypoints, descriptors = image_processing.get_keypoints_and_descriptors(image)
 
       # Serialize the keypoints and descriptors
       serialized_keypoints = pickle.dumps(keypoints)
@@ -51,3 +51,6 @@ def process_gold_standard():
   # Commit the changes and close the connection
   conn.commit()
   conn.close()
+
+if __name__ == "__main__":
+  process_gold_standard()

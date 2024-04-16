@@ -44,6 +44,14 @@ const ImageUpload = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ bgcolor: 'background.default', height: '100vh', '& > :not(style)': { m: 1 } }}>
+        {results.map((result, index) => (
+          <Box key={index} sx={{ my: 2 }}>
+            <Typography variant="h6">Results:</Typography>
+            <Typography variant="body1">
+              Image Link: <a href={result.image_link} target="_blank" rel="noopener noreferrer">Click Here</a>
+            </Typography>
+          </Box>
+        ))}
         <label htmlFor="contained-button-file">
           <Input accept="image/*" id="contained-button-file" type="file" onChange={onFileChange} />
           <Button variant="contained" component="span" color="primary">
@@ -53,17 +61,13 @@ const ImageUpload = () => {
         <Button variant="contained" color="secondary" onClick={onFileUpload}>
           Upload
         </Button>
-        {results.map((result, index) => (
-          <Box key={index} sx={{ my: 2 }}>
-            <Typography variant="h6">Result {index + 1}</Typography>
-            <Typography variant="body1">Image Path: {result.image_path}</Typography>
-            <Typography variant="body1">Image Link: {result.image_link}</Typography>
-            <Typography variant="body1">Matches: {result.matches}</Typography>
-          </Box>
-        ))}
       </Box>
     </ThemeProvider>
   );
 }
 
 export default ImageUpload;
+
+ //           <Typography variant="body1">Image Path: {result.image_path}</Typography>
+ //           <Typography variant="body1">Image Link: {result.image_link}</Typography>
+ //           <Typography variant="body1">Matches: {result.matches}</Typography>

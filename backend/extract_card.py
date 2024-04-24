@@ -1,23 +1,42 @@
 import cv2
 import numpy as np
 
-image = cv2.imread('data/human_cards/iron_leaves_ex0.jpeg', cv2.IMREAD_COLOR)
+img = cv2.imread('/Users/sam/Desktop/computer_vision/final_project/backend/data/human_cards/turtwig0.png', cv2.IMREAD_GRAYSCALE)
 
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-_, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+# Apply Gaussian blur to reduce noise in edge detection
+img_blur = cv2.GaussianBlur(img, (9, 9), 0)
 
-edges = cv2.Canny(threshold, 100, 200)
+# Apply Canny edge detection
+edges = cv2.Canny(img_blur, 100, 200)
 
-contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
-
-corners = cv2.approxPolyDP(contours[0], 30, True)
-
-pts1 = np.float32([corners[0,0], corners[1,0], corners[2,0], corners[3,0]])
-pts2 = np.float32([[0,0], [800,0], [800,600], [0,600]])
-matrix = cv2.getPerspectiveTransform(pts1, pts2)
-result = cv2.warpPerspective(image, matrix, (800,600))
-
-cv2.imshow('Card', result)
+# Display the edges
+cv2.imshow('Edges', edges)
 cv2.waitKey(0)
+
+# Define a kernel for the morphological operations
+kernel = np.ones((5,5),np.uint8)
+
+# Perform a dilation and erosion to close gaps in between object edges
+dilation = cv2.dilate(edges, kernel, iterations = 2)
+erosion = cv2.erode(dilation, kernel, iterations = 1)
+
+# Display the result after morphological operations
+cv2.imshow('Morphological Operations', erosion)
+cv2.waitKey(0)
+
+# Perform a Hough Line Transform
+lines = cv2.HoughLinesP(erosion, 1, np.pi/180, 100, minLineLength=100, maxLineGap=10)
+
+# Create a copy of the original image to draw lines on
+img_lines = img.copy()
+
+# Draw the lines on the image
+for line in lines:
+    x1, y1, x2, y2 = line[0]
+    cv2.line(img_lines, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+# Display the image with lines
+cv2.imshow('Hough Lines', img_lines)
+cv2.waitKey(0)
+
 cv2.destroyAllWindows()

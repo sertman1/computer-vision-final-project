@@ -10,8 +10,6 @@ def pre_process_image(img_path):
   image = cv2.imread(img_path)
   # resize image to be standard resolution of 733 x 1024
   image = cv2.resize(image, (733, 1024))
-  # convert to gray scale
-  image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
   return image
 
@@ -51,26 +49,23 @@ def get_homography(img, keypoints, descriptors, stored_img_path, stored_keypoint
         dst = cv2.perspectiveTransform(pts,M)
 
         # Connect corners with lines
-        img2 = cv2.polylines(img,[np.int32(dst)],True,255,3, cv2.LINE_AA)
+        img2 = cv2.polylines(img.copy(),[np.int32(dst)],True,(0, 0, 255),30, cv2.LINE_AA)
+
+        print("Perimeter of the card:")
+        for i, point in enumerate(dst):
+          print(f"Point {i+1}: {point[0]}")
 
         return img2
     else:
         print("Not enough matches are found - %d/%d" % (len(good_matches), MIN_MATCH_COUNT))
 
-def find_k_nearest_neighbors(img_path, k):
+def find_nearest_neighbor(img_path):
   img = pre_process_image(img_path)
   keypoints, descriptors = get_keypoints_and_descriptors(img)
   keypoints = array_to_keypoints(keypoints)
 
-  # FLANN parameters
-  FLANN_INDEX_LSH = 6
-  index_params= dict(algorithm = FLANN_INDEX_LSH,
-                     table_number = 6,
-                     key_size = 12,
-                     multi_probe_level = 1)
-  search_params = dict(checks=50)
-
-  flann = cv2.FlannBasedMatcher(index_params, search_params)
+  # Initialize the Brute-Force matcher
+  bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
 
   match_results = []
 
@@ -89,30 +84,24 @@ def find_k_nearest_neighbors(img_path, k):
     des = pickle.loads(serialized_des)
     kps = array_to_keypoints(kps)
 
-    matches = flann.knnMatch(descriptors, des, k=2)
-    good_matches = [m for m,n in matches if m.distance < 0.7*n.distance]
-    match_results.append((stored_img_path, image_link, len(good_matches)))
+    # Match the descriptors using the Brute-Force matcher
+    matches = bf.match(descriptors, des)
 
-  # Sort the results by the number of matches (in descending order)
-  match_results.sort(key=lambda x: x[2], reverse=True)
+    # Sort the matches by distance
+    matches = sorted(matches, key=lambda x: x.distance)
 
-  # Close the connection to the database
-  conn.close()
+    # Only keep the top match
+    if matches:
+        top_match = matches[0]
+        match_results.append((stored_img_path, image_link, top_match.distance))
 
-  if k == 1:
-      stored_img_path, image_link, num_matches = match_results[0]
-      stored_img = cv2.imread(stored_img_path, cv2.IMREAD_GRAYSCALE)
-      stored_keypoints, stored_descriptors = get_keypoints_and_descriptors(stored_img)
-      stored_keypoints = array_to_keypoints(stored_keypoints)
-      outlined_img = get_homography(img.copy(), keypoints, descriptors, stored_img_path, stored_keypoints, stored_descriptors, flann)
+  print(match_results)
 
-      cv2.imshow('Outlined card', outlined_img)
-      cv2.waitKey(0)
-      cv2.destroyAllWindows()
+  # Sort the results by match quality (lower distance is better)
+  match_results = sorted(match_results, key=lambda x: x[2])
 
-  # Return the top k results
-  return match_results[:k]
-
-
-
-find_k_nearest_neighbors('/Users/sam/Desktop/computer_vision/final_project/backend/data/human_cards/iron_leaves_ex0.jpeg', 1)
+  # Return the top result
+  if match_results:
+      return match_results[0]
+  else:
+      return None

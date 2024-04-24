@@ -18,8 +18,9 @@ def upload_file():
         filename = os.path.join('uploads', file.filename)
         file.save(filename)
         # just returning best match for now; highly confident in system
-        match_results = image_processing.find_k_nearest_neighbors(filename, 1)
+        match_results = image_processing.find_nearest_neighbor(filename)
         results = []
+        print("recieved request")
         for img_path, image_link, matches in match_results:
             img = cv2.imread(img_path)
             # Save the image to a file
@@ -29,4 +30,4 @@ def upload_file():
         return jsonify(results)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='127.0.0.1', port=5000)

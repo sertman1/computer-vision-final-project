@@ -1,13 +1,12 @@
 # Pokémon Card Condition Detector
 
-## Computer Vision Final Project
-
+## Computer Vision Final Project  
 Software written by Samuel A. Ertman and is for free-use. 
 
 ### Running the software locally
 
 To run the front-end React webapp (localhost 3000):
-* `cd frontend && npm i && npm run start`
+* `cd frontend && npm i && npm run start`  
 To run the back-end Flask server (localhost 5000):
 * `cd backend && npm run dev`
 

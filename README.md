@@ -1,8 +1,9 @@
 # Pokémon Card Condition Detector
 
 ## Computer Vision Final Project
+By Samuel A. Ertman
 
-### By Samuel A. Ertman
+### Running the software locally
 
 * To run the front-end React webapp (localhost 3000):
 `cd frontend && npm i && npm run start`

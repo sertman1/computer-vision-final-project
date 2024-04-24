@@ -1,7 +1,8 @@
 # Pokémon Card Condition Detector
 
 ## Computer Vision Final Project
-By Samuel A. Ertman
+
+Software written by Samuel A. Ertman and is for free-use. 
 
 ### Running the software locally
 

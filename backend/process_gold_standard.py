@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 import pickle
 import image_processing
@@ -7,7 +8,7 @@ def process_gold_standard():
   directory = 'data/temporal_forces'
   link_file = 'data/links/temporal_forces_links.txt'
   with open(link_file, 'r') as f:
-    image_links = f.read().split(',')
+    image_links = re.split(',|\n', f.read())
 
   # Connect to the SQLite database (it will be created if it doesn't exist)
   conn = sqlite3.connect('db/image_features.db')
@@ -47,6 +48,7 @@ def process_gold_standard():
           INSERT INTO features (image_path, image_link, keypoints, descriptors)
           VALUES (?, ?, ?, ?)
       ''', (img_path, image_link, serialized_keypoints, serialized_descriptors))
+
 
   # Commit the changes and close the connection
   conn.commit()
